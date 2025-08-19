@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, signInAnonymously, onAuthStateChanged, type User } from "firebase/auth";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 // PRODUCTION CODE
@@ -16,8 +16,6 @@ export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-export async function ensureAuth(): Promise<User> {
-  if (auth.currentUser) return auth.currentUser;
-  await signInAnonymously(auth);
-  return new Promise((resolve) => onAuthStateChanged(auth, u => u && resolve(u)));
-}
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.error("Failed to set auth persistence:", error);
+});
